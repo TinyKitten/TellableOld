@@ -1,0 +1,32 @@
+.appHeader {
+  width: 100%;
+  padding: 12px 24px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.link {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+.appTitle {
+  font-weight: bold;
+}
+.devState {
+  border: 1px solid #aaa;
+  padding: 4px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-size: 0.75rem;
+  color: #aaa;
+}
+.logout {
+  cursor: pointer;
+  color: #aaa;
+}

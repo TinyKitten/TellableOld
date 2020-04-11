@@ -1,0 +1,60 @@
+.container {
+  min-height: 100vh;
+  background: #212121;
+  color: #fff;
+}
+.content {
+  min-height: calc(100vh - 46px - 48px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.mock {
+  width: auto;
+  height: 50vh;
+}
+.texts {
+  margin-top: 32px;
+  text-align: center;
+}
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+}
+.description {
+  color: #eee;
+  margin-top: 8px;
+}
+.loginBtn {
+  display: inline-block;
+  cursor: pointer;
+  border: 1px solid #fff;
+  background: #212121;
+  padding: 8px 12px;
+  font-size: 1rem;
+  margin-top: 24px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: #fff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
+}
+.appFooter {
+  width: 100%;
+  text-align: center;
+  color: #555;
+  padding-bottom: 32px;
+}
+
+/* Oppa PC Style */
+@media (min-width: 800px) {
+  .content {
+    flex-direction: row-reverse;
+  }
+  .texts {
+    margin-right: 120px;
+  }
+  .mock {
+    height: 75vh;
+  }
+}
