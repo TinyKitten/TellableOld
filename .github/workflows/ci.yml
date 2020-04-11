@@ -15,5 +15,7 @@ jobs:
           node-version: '12.x'
       - name: Install Dependencies
         run: npm install
+      - name: Run eslint
+        run: npm run lint
       - name: Run test
         run: npm test
