@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import { AppRouter } from './Router';
 import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase/app';
 
@@ -21,7 +21,7 @@ firebase.initializeApp(firebaseConfig);
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AppRouter />
   </React.StrictMode>,
   document.getElementById('root'),
 );
