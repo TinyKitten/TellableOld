@@ -1,3 +1,5 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-export const HomeScreen = (): React.ReactElement => <h1>Hello Home World!</h1>;
+const HomeScreen = (): React.ReactElement => <h1 data-testid="title">Hello Home World!</h1>;
+
+export default memo(HomeScreen);
