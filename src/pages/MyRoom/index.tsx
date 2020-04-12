@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState, useCallback } from 'react';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import Peer, { MediaConnection } from 'skyway-js';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore';
