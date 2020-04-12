@@ -5,6 +5,7 @@ import styles from './styles.module.css';
 import MockImg from '../../assets/mock.png';
 import { useHistory } from 'react-router-dom';
 import Loading from '../../components/Loading';
+import ErrorPage from '../Error';
 
 const WelcomeScreen = (): React.ReactElement => {
   const [error, setError] = useState<Error | firebase.auth.Error>();
@@ -31,7 +32,7 @@ const WelcomeScreen = (): React.ReactElement => {
   };
 
   if (error || authStateError) {
-    return <h1>Error!</h1>;
+    return <ErrorPage message={error?.message || '予期しないエラーが発生しました。'} />;
   }
 
   if (initialising) {

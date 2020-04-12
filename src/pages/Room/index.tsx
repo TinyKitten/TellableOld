@@ -7,10 +7,11 @@ import { Helmet } from 'react-helmet';
 import { User } from '../../models/user';
 import ErrorPage from '../Error';
 import { ERR_COULD_NOT_GET_LOCAL_STREAM, ERR_USER_NOT_FOUND } from '../../constants/error';
-import MyRoomUI from './ui';
+import RoomUI from './ui';
 import Loading from '../../components/Loading';
+import { useParams } from 'react-router-dom';
 
-const MyRoomPage = (): React.ReactElement => {
+const RoomPage = (): React.ReactElement => {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [error, setError] = useState<Error>();
   const [authUser, authUserLoading, authUserError] = useAuthState(firebase.auth());
@@ -22,6 +23,7 @@ const MyRoomPage = (): React.ReactElement => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [remoteUser, setRemoteUser] = useState<User>();
   const [muted, setMuted] = useState(false);
+  const { id } = useParams();
 
   const initializeLocalStream = useCallback(async () => {
     if (navigator.mediaDevices) {
@@ -35,6 +37,18 @@ const MyRoomPage = (): React.ReactElement => {
     // MediaDevicesを取得できない
     const err = new Error(ERR_COULD_NOT_GET_LOCAL_STREAM);
     setError(err);
+  }, []);
+
+  const initializeRemoteUser = useCallback(async () => {
+    const usersRef = firebase.firestore().collection('users');
+    const query = usersRef.where('uniqueId', '==', id);
+    const snapshot = await query.get();
+    if (!snapshot.docs.length) {
+      setError(new Error(ERR_USER_NOT_FOUND));
+      return;
+    }
+    const doc = snapshot.docs[0];
+    setRemoteUser(doc.data() as User);
   }, []);
 
   const stopLocalStream = useCallback(() => {
@@ -70,13 +84,6 @@ const MyRoomPage = (): React.ReactElement => {
     p.on('error', (err) => {
       console.error(err);
       // TODO: エラー処理
-      /*
-      this.setState({
-        modalTitle: 'エラー',
-        modalContent: 'サーバー接続中にエラーが発生しました。リロードしてください。',
-        modalOpen: true,
-      });
-      */
       stopLocalStream();
     });
 
@@ -100,6 +107,26 @@ const MyRoomPage = (): React.ReactElement => {
         });
         */
       });
+    });
+  }, []);
+
+  const handleCallClick = useCallback(() => {
+    if (!peer || !id) {
+      return;
+    }
+    const existingCall = peer.call(id, localStream);
+    setExistingCall(existingCall);
+    existingCall.on('stream', (stream: MediaStream) => {
+      setRemoteStream(stream);
+    });
+    existingCall.on('close', () => {
+      /*
+      this.setState({
+        modalTitle: 'お知らせ',
+        modalContent: '通話が終了しました。',
+        modalOpen: true,
+      });
+      */
     });
   }, []);
 
@@ -135,7 +162,7 @@ const MyRoomPage = (): React.ReactElement => {
   }, [muted, unmuteLocalMic, muteLocalMic]);
 
   useEffect(() => {
-    Promise.all([initializeLocalStream(), initializePeer()]);
+    Promise.all([initializeLocalStream(), initializePeer(), initializeRemoteUser()]);
 
     return (): void => {
       stopLocalStream();
@@ -144,6 +171,10 @@ const MyRoomPage = (): React.ReactElement => {
       }
     };
   }, [initializeLocalStream, initializePeer, peer, stopLocalStream]);
+
+  if (!id) {
+    return <ErrorPage message="部屋IDを指定してください。" />;
+  }
 
   if (authUserLoading || userLoading) {
     return <Loading />;
@@ -167,7 +198,7 @@ const MyRoomPage = (): React.ReactElement => {
           <title>Tellable</title>
         </Helmet>
       )}
-      <MyRoomUI
+      <RoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
         calling={existingCall?.open || false}
@@ -175,9 +206,10 @@ const MyRoomPage = (): React.ReactElement => {
         onHangUp={handleHangUp}
         muted={muted}
         toggleLocalMic={toggleLocalMic}
+        onCallClick={handleCallClick}
       />
     </div>
   );
 };
 
-export default memo(MyRoomPage);
+export default memo(RoomPage);

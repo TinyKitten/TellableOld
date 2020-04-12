@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef, memo, useCallback } from 'react';
 import { User } from '../../models/user';
 import styles from './styles.module.css';
 import CallingAvatar from '../../components/CallingAvatar';
@@ -13,16 +13,18 @@ type Props = {
   onHangUp: () => void;
   muted: boolean;
   toggleLocalMic: () => void;
+  onCallClick: () => void;
 };
 
-const MyRoomUI = ({
+const RoomUI = ({
   micConnected,
   remoteStream,
-  remoteUser,
   calling,
+  remoteUser,
   onHangUp,
   muted,
   toggleLocalMic,
+  onCallClick,
 }: Props): React.ReactElement => {
   const getRemoteUserName = (remoteUser?: User): string =>
     remoteUser?.displayName || '通話相手なし';
@@ -42,10 +44,14 @@ const MyRoomUI = ({
     }
   }, [remoteStream]);
 
+  const handleCallButtonClick = useCallback(() => (calling ? onHangUp() : onCallClick()), [
+    calling,
+  ]);
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <audio className={styles.audio} autoPlay ref={audioElement} playsInline>
+        <audio className={styles.audio} ref={audioElement} autoPlay playsInline>
           <track kind="captions" src="seminar.ja.vtt" srcLang="ja" label="日本語" />
         </audio>
         <CallingAvatar calling={calling} user={remoteUser} />
@@ -60,16 +66,12 @@ const MyRoomUI = ({
         </p>
 
         <div className={styles.buttons}>
-          {calling ? (
-            <div data-testid="buttons">
-              <CallButton onClick={onHangUp} />
-              <MicMuteButton muted={muted} onClick={toggleLocalMic} />
-            </div>
-          ) : null}
+          <CallButton calling={calling} onClick={handleCallButtonClick} />
+          {calling ? <MicMuteButton muted={muted} onClick={toggleLocalMic} /> : null}
         </div>
       </div>
     </div>
   );
 };
 
-export default memo(MyRoomUI);
+export default memo(RoomUI);
