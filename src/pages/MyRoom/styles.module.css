@@ -1,0 +1,47 @@
+.container {
+  background: #212121;
+  min-height: 100vh;
+  color: #fff;
+}
+.content {
+  height: calc(100vh - 46px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+#player {
+  display: none;
+}
+.remoteScreenName {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 24px 0 8px 0;
+}
+.timer {
+  margin-top: 8px;
+}
+.buttons {
+  margin-top: 64px;
+}
+.micOn {
+  background: #008ffe;
+  box-shadow: 0 0 4px #008ffe;
+}
+.micOff {
+  background: #333;
+  box-shadow: 0 0 4px #333;
+}
+
+.msg {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+.error {
+  font-weight: bold;
+  margin-top: 12px;
+  color: crimson;
+}
+.audio {
+  display: none;
+}

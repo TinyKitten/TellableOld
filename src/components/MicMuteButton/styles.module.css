@@ -1,0 +1,23 @@
+.buttonIcon {
+  width: 50%;
+}
+.muteButton {
+  border-radius: 100%;
+  border: none;
+  color: #fff;
+  width: 72px;
+  height: 72px;
+  margin: 0 16px;
+  background: #008ffe;
+  box-shadow: 0 0 4px #008ffe;
+}
+.unmuteButton {
+  border-radius: 100%;
+  border: none;
+  color: #fff;
+  width: 72px;
+  height: 72px;
+  margin: 0 16px;
+  background: #333;
+  box-shadow: 0 0 4px #333;
+}
