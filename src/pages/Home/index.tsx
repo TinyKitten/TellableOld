@@ -26,7 +26,6 @@ const HomeScreen = (): React.ReactElement => {
       firestoreUser?.ref.update({ uniqueId });
       setUniqueId(uniqueId);
     } catch (err) {
-      console.error(err);
       setUpdateError(err);
     }
   }, [firestoreUser, user]);
@@ -41,7 +40,6 @@ const HomeScreen = (): React.ReactElement => {
       });
       setUniqueId(uniqueId);
     } catch (err) {
-      console.error(err);
       setUpdateError(err);
     }
   }, [firestoreUser, user]);
