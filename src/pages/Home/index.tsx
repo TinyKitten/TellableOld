@@ -7,6 +7,7 @@ import { useDocument } from 'react-firebase-hooks/firestore';
 import Hashids from 'hashids';
 import styles from './styles.module.css';
 import Loading from '../../components/Loading';
+import { User } from '../../models/user';
 
 const HomeScreen = (): React.ReactElement => {
   const [updateError, setUpdateError] = useState<Error>();
@@ -23,9 +24,11 @@ const HomeScreen = (): React.ReactElement => {
     const h = new Hashids(user?.uid);
     const uniqueId = h.encode(randomInt(), randomInt(), randomInt());
     try {
-      await firestoreUser?.ref.update({ uniqueId });
+      const newUser: User = {
+        uniqueId,
+      };
+      await firestoreUser?.ref.update(newUser);
       setUniqueId(uniqueId);
-      console.log(uniqueId);
     } catch (err) {
       setUpdateError(err);
     }
@@ -35,9 +38,12 @@ const HomeScreen = (): React.ReactElement => {
     const randomInt = (): number => Math.floor(Math.random() * Math.floor(9));
     const h = new Hashids(user?.uid);
     const uniqueId = h.encode(randomInt(), randomInt(), randomInt());
+    const avatarUrl = user?.photoURL?.replace('_normal', '');
     try {
       firestoreUser?.ref.set({
         uniqueId,
+        avatarUrl,
+        displayName: user?.displayName,
       });
       setUniqueId(uniqueId);
     } catch (err) {

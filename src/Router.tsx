@@ -7,6 +7,7 @@ import WelcomeScreen from './pages/Welcome';
 import AuthContainer from './containers/Auth';
 import Header from './components/Header';
 import Loading from './components/Loading';
+import MyRoom from './pages/MyRoom';
 
 export const AppRouter = (): React.ReactElement => {
   const [user, initialising, error] = useAuthState(firebase.auth());
@@ -33,6 +34,9 @@ export const AppRouter = (): React.ReactElement => {
             <WelcomeScreen />
           </Route>
           <AuthContainer user={user}>
+            <Route path="/myroom">
+              <MyRoom />
+            </Route>
             <Route path="/">
               <HomeScreen />
             </Route>
