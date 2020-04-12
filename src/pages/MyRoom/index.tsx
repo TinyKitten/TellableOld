@@ -126,7 +126,7 @@ const MyRoomPage = (): React.ReactElement => {
     } else {
       muteLocalMic();
     }
-  }, [muted]);
+  }, [muted, unmuteLocalMic, muteLocalMic]);
 
   useEffect(() => {
     Promise.all([initializeLocalStream(), initializePeer()]);
@@ -137,7 +137,7 @@ const MyRoomPage = (): React.ReactElement => {
         peer.disconnect();
       }
     };
-  }, []);
+  }, [initializeLocalStream, initializePeer, peer, stopLocalStream]);
 
   if (authUserLoading || userLoading) {
     return <Loading />;
