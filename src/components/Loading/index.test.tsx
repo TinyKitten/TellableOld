@@ -1,11 +1,10 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import HomeScreen from '.';
+import { shallow } from 'enzyme';
+import Loading from '.';
 
-describe('HomeScreen', () => {
-  test('should render the title', () => {
-    const { getByText } = render(<HomeScreen />);
-    const h1Element = getByText(/Loading.../i);
-    expect(h1Element).toBeInTheDocument();
+describe('Loading', () => {
+  it('should render text', () => {
+    const wrapper = shallow(<Loading />);
+    expect(wrapper.text()).toBe('LOADING...');
   });
 });
