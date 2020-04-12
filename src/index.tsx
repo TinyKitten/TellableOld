@@ -5,6 +5,7 @@ import { AppRouter } from './Router';
 import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/firestore';
 
 require('dotenv').config();
 
