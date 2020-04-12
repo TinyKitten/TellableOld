@@ -1,5 +1,10 @@
-import React, { memo } from 'react';
+import React from 'react';
+import styles from './styles.module.css';
 
-const Loading = (): React.ReactElement => <h1>Loading...</h1>;
+const Loading = (): React.ReactElement => (
+  <div className={styles.container}>
+    <h1>LOADING...</h1>
+  </div>
+);
 
-export default memo(Loading);
+export default Loading;
