@@ -1,35 +1,39 @@
 import React from 'react';
 import { createMemoryHistory } from 'history';
-import { render } from '@testing-library/react';
 import Header from '.';
 import { Router } from 'react-router-dom';
+import { mount } from 'enzyme';
+import { testIdSelector } from '../../testutil/testIdSelector';
 
 describe('Header', () => {
-  test('should render the title', () => {
+  it('should render the title', () => {
     const history = createMemoryHistory();
-    const { queryByTestId } = render(
+    const wrapper = mount(
       <Router history={history}>
         <Header isLoggedIn={false} />
       </Router>,
     );
-    expect(queryByTestId('title')).toBeInTheDocument();
+    const titleElement = wrapper.find(testIdSelector('title'));
+    expect(titleElement.text()).toBe('Tellable');
   });
-  test('should render the development phase', () => {
+  it('should render the development phase', () => {
     const history = createMemoryHistory();
-    const { queryByTestId } = render(
+    const wrapper = mount(
       <Router history={history}>
         <Header isLoggedIn={false} />
       </Router>,
     );
-    expect(queryByTestId('dev-state')).toBeInTheDocument();
+    const devStateElement = wrapper.find(testIdSelector('dev-state'));
+    expect(devStateElement.text()).toBe('Beta');
   });
-  test('isLoggedIn true', () => {
+  it('isLoggedIn true', () => {
     const history = createMemoryHistory();
-    const { queryByTestId } = render(
+    const wrapper = mount(
       <Router history={history}>
         <Header isLoggedIn={true} />
       </Router>,
     );
-    expect(queryByTestId('logout-button')).toBeInTheDocument();
+    const logoutElement = wrapper.find(testIdSelector('logout-button'));
+    expect(logoutElement.text()).toBe('ログアウト');
   });
 });

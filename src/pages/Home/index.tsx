@@ -23,8 +23,9 @@ const HomeScreen = (): React.ReactElement => {
     const h = new Hashids(user?.uid);
     const uniqueId = h.encode(randomInt(), randomInt(), randomInt());
     try {
-      firestoreUser?.ref.update({ uniqueId });
+      await firestoreUser?.ref.update({ uniqueId });
       setUniqueId(uniqueId);
+      console.log(uniqueId);
     } catch (err) {
       setUpdateError(err);
     }
@@ -45,12 +46,12 @@ const HomeScreen = (): React.ReactElement => {
   }, [firestoreUser, user]);
 
   useEffect(() => {
-    const uniqueId: string | undefined = firestoreUser?.get('uniqueId');
-    if (!uniqueId) {
+    const storedUniqueId: string | undefined = firestoreUser?.get('uniqueId');
+    if (!storedUniqueId) {
       initializeUser();
       return;
     }
-    setUniqueId(uniqueId);
+    setUniqueId(storedUniqueId);
   }, [firestoreUser, initializeUser]);
 
   const handleCopy = (): void => setCopied(true);
@@ -78,8 +79,12 @@ const HomeScreen = (): React.ReactElement => {
           <p className={styles.notice}>&nbsp;</p>
         )}
         <CopyToClipboard text={roomUrl} onCopy={handleCopy}>
-          <div id="address" className={styles.address}>
-            {uniqueId?.length ? <span>{roomUrl}</span> : <span>LOADING...</span>}
+          <div className={styles.address} data-testid="url-container">
+            {uniqueId ? (
+              <span data-testid="url">{roomUrl}</span>
+            ) : (
+              <span data-testid="loading">LOADING...</span>
+            )}
             <span className={styles.helperText}>CLICK TO COPY</span>
           </div>
         </CopyToClipboard>
@@ -96,10 +101,16 @@ const HomeScreen = (): React.ReactElement => {
           className={styles.shareLink}
           target="_blank"
           rel="noopener noreferrer"
+          data-testid="twitter"
         >
           Twitterでシェア
         </a>
-        <button id="regenerateBtn" type="button" onClick={handleRegenerate} className={styles.btn}>
+        <button
+          data-testid="regenerate-button"
+          type="button"
+          onClick={handleRegenerate}
+          className={styles.btn}
+        >
           URL再生成
         </button>
         <button type="button" onClick={pushToMyRoom} className={styles.btn}>
