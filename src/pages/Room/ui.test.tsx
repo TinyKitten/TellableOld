@@ -12,6 +12,7 @@ describe('<RoomUI />', () => {
       uniqueId: 'uid',
     };
     const onCallClick = jest.fn();
+    const onError = jest.fn();
     const wrapper = shallow(
       <RoomUI
         muted={false}
@@ -21,6 +22,7 @@ describe('<RoomUI />', () => {
         calling
         micConnected
         onCallClick={onCallClick}
+        onError={onError}
       />,
     );
     const remoteUserName = wrapper.find(testIdSelector('remote-user-name'));
@@ -32,6 +34,7 @@ describe('<RoomUI />', () => {
   });
   it('should rendered correctly with not calling state', () => {
     const onCallClick = jest.fn();
+    const onError = jest.fn();
     const wrapper = shallow(
       <RoomUI
         muted={false}
@@ -40,12 +43,13 @@ describe('<RoomUI />', () => {
         calling={false}
         micConnected={false}
         onCallClick={onCallClick}
+        onError={onError}
       />,
     );
     const callState = wrapper.find(testIdSelector('call-state'));
     const micConnectionError = wrapper.find(testIdSelector('mic-connection-error'));
     expect(callState.text()).toBe('通話していません');
-    expect(micConnectionError.text()).toBe('マイクの使用を許可してください。');
+    expect(micConnectionError.text()).toBe('ボタンをクリックしてマイクの使用を許可してください。');
   });
   it('should fire events when buttons clicked', () => {
     const mockRemoteUser = {
@@ -55,6 +59,7 @@ describe('<RoomUI />', () => {
     const mockOnHangUp = jest.fn();
     const mockToggleLocalMic = jest.fn();
     const onCallClick = jest.fn();
+    const onError = jest.fn();
     const wrapper = shallow(
       <RoomUI
         remoteUser={mockRemoteUser}
@@ -64,6 +69,7 @@ describe('<RoomUI />', () => {
         onHangUp={mockOnHangUp}
         toggleLocalMic={mockToggleLocalMic}
         onCallClick={onCallClick}
+        onError={onError}
       />,
     );
     const callButton = wrapper.find(CallButton);

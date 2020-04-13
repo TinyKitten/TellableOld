@@ -10,9 +10,7 @@
   align-items: center;
   flex-direction: column;
 }
-#player {
-  display: none;
-}
+
 .remoteScreenName {
   font-size: 1.5rem;
   font-weight: bold;

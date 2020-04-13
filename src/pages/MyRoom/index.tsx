@@ -2,7 +2,6 @@ import React, { memo, useEffect, useState, useCallback } from 'react';
 import firebase from 'firebase/app';
 import Peer, { MediaConnection } from 'skyway-js';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore';
 import { Helmet } from 'react-helmet';
 import { User } from '../../models/user';
 import ErrorPage from '../Error';
@@ -14,14 +13,12 @@ const MyRoomPage = (): React.ReactElement => {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [error, setError] = useState<Error>();
   const [authUser, authUserLoading, authUserError] = useAuthState(firebase.auth());
-  const [user, userLoading, userError] = useDocumentDataOnce<User>(
-    firebase.firestore().collection('users').doc(authUser?.uid),
-  );
   const [peer, setPeer] = useState<Peer | null>(null);
   const [existingCall, setExistingCall] = useState<MediaConnection>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [remoteUser, setRemoteUser] = useState<User>();
   const [muted, setMuted] = useState(false);
+  const [user, setUser] = useState<User>();
 
   const initializeLocalStream = useCallback(async () => {
     if (navigator.mediaDevices) {
@@ -68,7 +65,6 @@ const MyRoomPage = (): React.ReactElement => {
     setPeer(p);
 
     p.on('error', (err) => {
-      console.error(err);
       // TODO: エラー処理
       /*
       this.setState({
@@ -78,20 +74,19 @@ const MyRoomPage = (): React.ReactElement => {
       });
       */
       stopLocalStream();
+      setError(err);
     });
 
     p.on('call', (call: MediaConnection) => {
-      if (existingCall) {
-        return;
-      }
       setExistingCall(call);
       call.answer(localStream);
+      fetchRemoteUser(call.remoteId);
       call.on('stream', (stream) => {
         setRemoteStream(stream);
-        fetchRemoteUser(call.remoteId);
       });
       call.on('close', () => {
         setRemoteUser(undefined);
+        setExistingCall(existingCall);
         /*
         this.setState({
           modalTitle: 'お知らせ',
@@ -101,11 +96,12 @@ const MyRoomPage = (): React.ReactElement => {
         */
       });
     });
-  }, []);
+  }, [user]);
 
-  const handleHangUp = useCallback(() => {
+  const handleHangUp = (): void => {
     existingCall?.close();
-  }, [existingCall]);
+    setExistingCall(undefined);
+  };
 
   const unmuteLocalMic = useCallback(() => {
     if (localStream) {
@@ -134,8 +130,26 @@ const MyRoomPage = (): React.ReactElement => {
     }
   }, [muted, unmuteLocalMic, muteLocalMic]);
 
+  const fetchLocalUser = useCallback(async () => {
+    const query = firebase.firestore().collection('users').doc(authUser?.uid);
+    const snapshot = await query.get();
+    setUser(snapshot.data() as User);
+  }, []);
+
+  const awaitInitializeLocalUser = useCallback(async (): Promise<void> => {
+    await fetchLocalUser();
+  }, []);
+
   useEffect(() => {
-    Promise.all([initializeLocalStream(), initializePeer()]);
+    awaitInitializeLocalUser();
+  }, []);
+
+  const initialize = useCallback(async () => {
+    await Promise.all([initializeLocalStream(), initializePeer()]);
+  }, [initializeLocalStream, initializePeer]);
+
+  useEffect(() => {
+    initialize();
 
     return (): void => {
       stopLocalStream();
@@ -143,19 +157,21 @@ const MyRoomPage = (): React.ReactElement => {
         peer.disconnect();
       }
     };
-  }, [initializeLocalStream, initializePeer, peer, stopLocalStream]);
+  }, [user]);
 
-  if (authUserLoading || userLoading) {
-    return <Loading />;
+  const handleError = useCallback((err: Error) => setError(err), []);
+
+  if (error || authUserError) {
+    return <ErrorPage message="エラーが発生しました。" />;
   }
 
-  if (error || authUserError || userError) {
-    return <ErrorPage message="エラーが発生しました。" />;
+  if (!user || !authUser || authUserLoading) {
+    return <Loading />;
   }
 
   return (
     <div>
-      {existingCall && existingCall.open && remoteUser ? (
+      {existingCall?.open && remoteUser ? (
         <Helmet>
           <title>
             {remoteUser.displayName}
@@ -175,6 +191,7 @@ const MyRoomPage = (): React.ReactElement => {
         onHangUp={handleHangUp}
         muted={muted}
         toggleLocalMic={toggleLocalMic}
+        onError={handleError}
       />
     </div>
   );

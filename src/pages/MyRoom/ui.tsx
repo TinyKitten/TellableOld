@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef, memo, useCallback } from 'react';
 import { User } from '../../models/user';
 import styles from './styles.module.css';
 import CallingAvatar from '../../components/CallingAvatar';
@@ -13,6 +13,7 @@ type Props = {
   onHangUp: () => void;
   muted: boolean;
   toggleLocalMic: () => void;
+  onError: (err: Error) => void;
 };
 
 const MyRoomUI = ({
@@ -23,6 +24,7 @@ const MyRoomUI = ({
   onHangUp,
   muted,
   toggleLocalMic,
+  onError,
 }: Props): React.ReactElement => {
   const getRemoteUserName = (remoteUser?: User): string =>
     remoteUser?.displayName || '通話相手なし';
@@ -31,23 +33,26 @@ const MyRoomUI = ({
     connected ? '' : 'マイクの使用を許可してください。';
   const audioElement = useRef<HTMLMediaElement>(null);
 
-  useEffect(() => {
+  const playStream = useCallback(async () => {
     if (remoteStream && audioElement.current) {
       audioElement.current.srcObject = remoteStream;
-      setTimeout(() => {
-        if (audioElement.current) {
-          audioElement.current.play();
+      if (audioElement.current) {
+        try {
+          await audioElement.current.play();
+        } catch (err) {
+          onError(err);
         }
-      }, 0);
+      }
     }
-  }, [remoteStream]);
+  }, [remoteStream, audioElement]);
+
+  useEffect(() => {
+    playStream();
+  }, [remoteStream, audioElement]);
 
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <audio className={styles.audio} autoPlay ref={audioElement} playsInline>
-          <track kind="captions" src="seminar.ja.vtt" srcLang="ja" label="日本語" />
-        </audio>
         <CallingAvatar calling={calling} user={remoteUser} />
         <p data-testid="remote-user-name" className={styles.remoteScreenName}>
           {getRemoteUserName(remoteUser)}
@@ -68,6 +73,13 @@ const MyRoomUI = ({
           ) : null}
         </div>
       </div>
+      {/*無音*/}
+      <audio autoPlay src="/silence.mp3" playsInline>
+        <track kind="captions" src="seminar.ja.vtt" srcLang="ja" label="日本語" />
+      </audio>
+      <audio autoPlay ref={audioElement} playsInline>
+        <track kind="captions" src="seminar.ja.vtt" srcLang="ja" label="日本語" />
+      </audio>
     </div>
   );
 };

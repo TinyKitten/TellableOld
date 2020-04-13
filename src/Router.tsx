@@ -31,20 +31,20 @@ export const AppRouter = (): React.ReactElement => {
         <Header isLoggedIn={!!user} onLogoutClick={handleLogoutClick} />
 
         <Switch>
-          <Route path="/welcome">
+          <Route exact path="/welcome">
             <WelcomeScreen />
           </Route>
           <AuthContainer user={user}>
-            <Route path="/myroom">
+            <Route exact path="/myroom">
               <MyRoom />
             </Route>
-            <Route path="/myroom/:id">
+            <Route exact path="/room/:id">
               <Room />
             </Route>
-            <Route path="/myroom">
+            <Route exact path="/room">
               <Room />
             </Route>
-            <Route path="/">
+            <Route exact path="/">
               <HomeScreen />
             </Route>
           </AuthContainer>
