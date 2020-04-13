@@ -34,14 +34,15 @@ const MyRoomUI = ({
   const audioElement = useRef<HTMLMediaElement>(null);
 
   const playStream = useCallback(async () => {
+    if (!remoteStream && audioElement.current) {
+      audioElement.current.pause();
+    }
     if (remoteStream && audioElement.current) {
       audioElement.current.srcObject = remoteStream;
-      if (audioElement.current) {
-        try {
-          await audioElement.current.play();
-        } catch (err) {
-          onError(err);
-        }
+      try {
+        await audioElement.current.play();
+      } catch (err) {
+        onError(err);
       }
     }
   }, [remoteStream, audioElement]);

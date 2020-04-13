@@ -1,14 +1,15 @@
 import React, { memo, useEffect, useState, useCallback } from 'react';
 import firebase from 'firebase/app';
+import { useParams } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import Peer, { MediaConnection } from 'skyway-js';
 import { Helmet } from 'react-helmet';
 import { User } from '../../models/user';
 import ErrorPage from '../Error';
 import { ERR_COULD_NOT_GET_LOCAL_STREAM, ERR_USER_NOT_FOUND } from '../../constants/error';
 import RoomUI from './ui';
-import { useParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { StoredSession } from '../../models/storedSession';
 
 const RoomPage = (): React.ReactElement => {
   const [authUser, authUserLoading, authUserError] = useAuthState(firebase.auth());
@@ -21,6 +22,7 @@ const RoomPage = (): React.ReactElement => {
   const [muted, setMuted] = useState(false);
   const [localUser, setLocalUser] = useState<User>();
   const { id } = useParams();
+  const [storedSession, setStoredSession] = useState<StoredSession>();
 
   const initializeLocalStream = useCallback(async () => {
     if (localStream) {
@@ -56,9 +58,10 @@ const RoomPage = (): React.ReactElement => {
   }, []);
 
   const fetchLocalUser = useCallback(async () => {
-    const query = firebase.firestore().collection('users').doc(authUser?.uid);
-    const snapshot = await query.get();
-    setLocalUser(snapshot.data() as User);
+    const userQuery = firebase.firestore().collection('users').doc(authUser?.uid);
+    const userQuerySnapshot = await userQuery.get();
+    const storedUser = userQuerySnapshot.data() as User;
+    setLocalUser(storedUser);
   }, []);
 
   const awaitInitializeLocalUser = useCallback(async (): Promise<void> => {
@@ -75,7 +78,7 @@ const RoomPage = (): React.ReactElement => {
   }, [localStream]);
 
   const initializePeer = useCallback(() => {
-    if (!localUser) {
+    if (!localUser || peer) {
       return;
     }
     const p = new Peer(localUser.uniqueId, {
@@ -90,6 +93,13 @@ const RoomPage = (): React.ReactElement => {
     });
   }, [localUser]);
 
+  const updateStoredSession = useCallback(async (calling: boolean) => {
+    const doc = firebase.firestore().collection('sessions').doc(id);
+    doc.set({
+      calling,
+    });
+  }, []);
+
   const handleCallClick = useCallback(async () => {
     if (!peer || !id) {
       return;
@@ -98,12 +108,15 @@ const RoomPage = (): React.ReactElement => {
       const ls = await initializeLocalStream();
       const call = peer.call(id, ls);
       setExistingCall(call);
+      if (!call) {
+        return;
+      }
       call.on('stream', (stream: MediaStream) => {
+        updateStoredSession(true);
         setRemoteStream(stream);
-        setExistingCall(call);
       });
       call.on('close', () => {
-        setExistingCall(existingCall);
+        setRemoteStream(undefined);
         /*
       this.setState({
         modalTitle: 'お知らせ',
@@ -115,11 +128,12 @@ const RoomPage = (): React.ReactElement => {
     } catch (err) {
       setError(err);
     }
-  }, [peer, localStream, existingCall]);
+  }, [peer, localStream]);
 
   const handleHangUp = (): void => {
     existingCall?.close();
     setExistingCall(undefined);
+    updateStoredSession(false);
   };
 
   const unmuteLocalMic = useCallback(() => {
@@ -149,29 +163,49 @@ const RoomPage = (): React.ReactElement => {
     }
   }, [muted, unmuteLocalMic, muteLocalMic]);
 
-  const initialize = useCallback(async () => {
-    initializePeer();
-  }, [localUser]);
-
   const awaitInitializeRemoteUser = useCallback(async (): Promise<void> => {
     await initializeRemoteUser();
   }, []);
 
-  useEffect(() => {
-    awaitInitializeLocalUser();
-    awaitInitializeRemoteUser();
+  const awaitInitializeLocalStream = useCallback(async (): Promise<void> => {
+    await initializeLocalStream();
+  }, []);
+
+  const fetchCalling = useCallback(() => {
+    firebase
+      .firestore()
+      .collection('sessions')
+      .doc(id)
+      .onSnapshot((doc) => {
+        const session = doc.data() as StoredSession;
+        if (!session?.calling) {
+          setRemoteStream(undefined);
+        }
+        setStoredSession(session);
+      });
   }, []);
 
   useEffect(() => {
-    initialize();
+    handleHangUp();
+    awaitInitializeLocalUser();
+    awaitInitializeRemoteUser();
+    awaitInitializeLocalStream();
 
     return (): void => {
+      updateStoredSession(false);
       stopLocalStream();
       if (peer) {
         peer.disconnect();
       }
     };
-  }, [remoteUser]);
+  }, []);
+  useEffect(() => {
+    fetchCalling();
+  }, [peer]);
+
+  useEffect(() => {
+    initializePeer();
+  }, [localUser]);
 
   const handleError = useCallback((err: Error) => setError(err), []);
 
@@ -188,15 +222,16 @@ const RoomPage = (): React.ReactElement => {
   }
 
   if (error || authUserError) {
+    console.error(error);
     return <ErrorPage message="エラーが発生しました。" />;
   }
 
   return (
     <div>
-      {existingCall?.remoteId ? (
+      {storedSession?.calling && remoteUser ? (
         <Helmet>
           <title>
-            {remoteUser?.displayName}
+            {remoteUser.displayName}
             さんと通話中 - Tellable
           </title>
         </Helmet>
@@ -208,7 +243,7 @@ const RoomPage = (): React.ReactElement => {
       <RoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
-        calling={!!existingCall?.remoteId || false}
+        calling={storedSession?.calling || false}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
         muted={muted}

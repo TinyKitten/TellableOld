@@ -8,6 +8,7 @@ import ErrorPage from '../Error';
 import { ERR_COULD_NOT_GET_LOCAL_STREAM, ERR_USER_NOT_FOUND } from '../../constants/error';
 import MyRoomUI from './ui';
 import Loading from '../../components/Loading';
+import { StoredSession } from '../../models/storedSession';
 
 const MyRoomPage = (): React.ReactElement => {
   const [localStream, setLocalStream] = useState<MediaStream>();
@@ -19,6 +20,7 @@ const MyRoomPage = (): React.ReactElement => {
   const [remoteUser, setRemoteUser] = useState<User>();
   const [muted, setMuted] = useState(false);
   const [user, setUser] = useState<User>();
+  const [storedSession, setStoredSession] = useState<StoredSession>();
 
   const initializeLocalStream = useCallback(async () => {
     if (navigator.mediaDevices) {
@@ -43,6 +45,19 @@ const MyRoomPage = (): React.ReactElement => {
       });
     }
   }, [localStream]);
+
+  const updateStoredSession = useCallback(
+    async (calling: boolean) => {
+      if (!user) {
+        return;
+      }
+      const doc = firebase.firestore().collection('sessions').doc(user.uniqueId);
+      doc.set({
+        calling,
+      });
+    },
+    [user],
+  );
 
   const fetchRemoteUser = useCallback(async (uniqueId: string) => {
     const usersRef = firebase.firestore().collection('users');
@@ -83,12 +98,13 @@ const MyRoomPage = (): React.ReactElement => {
       const ls = await initializeLocalStream();
       call.answer(ls);
       fetchRemoteUser(call.remoteId);
+      updateStoredSession(true);
       call.on('stream', (stream) => {
         setRemoteStream(stream);
       });
       call.on('close', () => {
         setRemoteUser(undefined);
-        setExistingCall(existingCall);
+        setRemoteStream(undefined);
         /*
         this.setState({
           modalTitle: 'お知らせ',
@@ -101,8 +117,12 @@ const MyRoomPage = (): React.ReactElement => {
   }, [user]);
 
   const handleHangUp = (): void => {
-    existingCall?.close();
+    if (!existingCall) {
+      return;
+    }
+    existingCall.close();
     setExistingCall(undefined);
+    updateStoredSession(false);
   };
 
   const unmuteLocalMic = useCallback(() => {
@@ -133,17 +153,35 @@ const MyRoomPage = (): React.ReactElement => {
   }, [muted, unmuteLocalMic, muteLocalMic]);
 
   const fetchLocalUser = useCallback(async () => {
-    const query = firebase.firestore().collection('users').doc(authUser?.uid);
-    const snapshot = await query.get();
-    setUser(snapshot.data() as User);
+    const userQuery = firebase.firestore().collection('users').doc(authUser?.uid);
+    const userQuerySnapshot = await userQuery.get();
+    const storedUser = userQuerySnapshot.data() as User;
+    setUser(storedUser);
+    firebase
+      .firestore()
+      .collection('sessions')
+      .doc(storedUser.uniqueId)
+      .onSnapshot((doc) => {
+        const session = doc.data() as StoredSession;
+        if (!session?.calling) {
+          setRemoteUser(undefined);
+          setRemoteStream(undefined);
+        }
+        setStoredSession(session);
+      });
   }, []);
 
-  const awaitInitializeLocalUser = useCallback(async (): Promise<void> => {
+  const awaitInitialize = useCallback(async (): Promise<void> => {
     await fetchLocalUser();
+    await initializeLocalStream();
   }, []);
 
   useEffect(() => {
-    awaitInitializeLocalUser();
+    awaitInitialize();
+
+    return (): void => {
+      updateStoredSession(false);
+    };
   }, []);
 
   const initialize = useCallback(async () => {
@@ -164,6 +202,7 @@ const MyRoomPage = (): React.ReactElement => {
   const handleError = useCallback((err: Error) => setError(err), []);
 
   if (error || authUserError) {
+    console.error(error);
     return <ErrorPage message="エラーが発生しました。" />;
   }
 
@@ -173,7 +212,7 @@ const MyRoomPage = (): React.ReactElement => {
 
   return (
     <div>
-      {existingCall?.open && remoteUser ? (
+      {storedSession?.calling && remoteUser ? (
         <Helmet>
           <title>
             {remoteUser.displayName}
@@ -188,7 +227,7 @@ const MyRoomPage = (): React.ReactElement => {
       <MyRoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
-        calling={existingCall?.open || false}
+        calling={storedSession?.calling || false}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
         muted={muted}
