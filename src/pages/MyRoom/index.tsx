@@ -27,11 +27,12 @@ const MyRoomPage = (): React.ReactElement => {
         video: false,
       });
       setLocalStream(localStream);
-      return;
+      return Promise.resolve(localStream);
     }
     // MediaDevicesを取得できない
     const err = new Error(ERR_COULD_NOT_GET_LOCAL_STREAM);
     setError(err);
+    return Promise.reject(err);
   }, []);
 
   const stopLocalStream = useCallback(() => {
@@ -77,9 +78,10 @@ const MyRoomPage = (): React.ReactElement => {
       setError(err);
     });
 
-    p.on('call', (call: MediaConnection) => {
+    p.on('call', async (call: MediaConnection) => {
       setExistingCall(call);
-      call.answer(localStream);
+      const ls = await initializeLocalStream();
+      call.answer(ls);
       fetchRemoteUser(call.remoteId);
       call.on('stream', (stream) => {
         setRemoteStream(stream);
