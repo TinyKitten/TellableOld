@@ -49,7 +49,7 @@ describe('<RoomUI />', () => {
     const callState = wrapper.find(testIdSelector('call-state'));
     const micConnectionError = wrapper.find(testIdSelector('mic-connection-error'));
     expect(callState.text()).toBe('通話していません');
-    expect(micConnectionError.text()).toBe('ボタンをクリックしてマイクの使用を許可してください。');
+    expect(micConnectionError.text()).toBe('マイクの使用を許可してください。');
   });
   it('should fire events when buttons clicked', () => {
     const mockRemoteUser = {
