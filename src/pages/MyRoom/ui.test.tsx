@@ -11,12 +11,14 @@ describe('<MyRoomUI />', () => {
       displayName: 'remote',
       uniqueId: 'uid',
     };
+    const onError = jest.fn();
     const wrapper = shallow(
       <MyRoomUI
         muted={false}
         onHangUp={jest.fn()}
         toggleLocalMic={jest.fn()}
         remoteUser={mockRemoteUser}
+        onError={onError}
         calling
         micConnected
       />,
@@ -30,6 +32,7 @@ describe('<MyRoomUI />', () => {
     expect(wrapper.exists(testIdSelector('buttons'))).toBe(true);
   });
   it('should rendered correctly with not calling state', () => {
+    const onError = jest.fn();
     const wrapper = shallow(
       <MyRoomUI
         muted={false}
@@ -37,6 +40,7 @@ describe('<MyRoomUI />', () => {
         toggleLocalMic={jest.fn()}
         calling={false}
         micConnected={false}
+        onError={onError}
       />,
     );
     const callState = wrapper.find(testIdSelector('call-state'));
@@ -52,6 +56,7 @@ describe('<MyRoomUI />', () => {
     };
     const mockOnHangUp = jest.fn();
     const mockToggleLocalMic = jest.fn();
+    const onError = jest.fn();
     const wrapper = shallow(
       <MyRoomUI
         remoteUser={mockRemoteUser}
@@ -60,6 +65,7 @@ describe('<MyRoomUI />', () => {
         muted={false}
         onHangUp={mockOnHangUp}
         toggleLocalMic={mockToggleLocalMic}
+        onError={onError}
       />,
     );
     const callButton = wrapper.find(CallButton);

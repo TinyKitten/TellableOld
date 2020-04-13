@@ -32,18 +32,19 @@ const RoomUI = ({
     remoteUser?.displayName || '通話相手なし';
   const getCallState = (calling: boolean): string => (calling ? '通話中' : '通話していません');
   const getMicError = (connected: boolean): string =>
-    connected ? '' : 'ボタンをクリックしてマイクの使用を許可してください。';
+    connected ? '' : 'マイクの使用を許可してください。';
   const audioElement = useRef<HTMLMediaElement>(null);
 
   const playStream = useCallback(async () => {
+    if (!remoteStream && audioElement.current) {
+      audioElement.current.pause();
+    }
     if (remoteStream && audioElement.current) {
-      audioElement.current.srcObject = remoteStream;
-      if (audioElement.current) {
-        try {
-          await audioElement.current.play();
-        } catch (err) {
-          onError(err);
-        }
+      audioElement.current.srcObject = remoteStream || null;
+      try {
+        await audioElement.current.play();
+      } catch (err) {
+        onError(err);
       }
     }
   }, [remoteStream, audioElement]);
