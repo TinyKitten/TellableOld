@@ -13,24 +13,26 @@ type Props = {
   onHangUp: () => void;
   muted: boolean;
   toggleLocalMic: () => void;
+  onCallClick: () => void;
   onError: (err: Error) => void;
 };
 
-const MyRoomUI = ({
+const RoomUI = ({
   micConnected,
   remoteStream,
-  remoteUser,
   calling,
+  remoteUser,
   onHangUp,
   muted,
   toggleLocalMic,
+  onCallClick,
   onError,
 }: Props): React.ReactElement => {
   const getRemoteUserName = (remoteUser?: User): string =>
     remoteUser?.displayName || '通話相手なし';
   const getCallState = (calling: boolean): string => (calling ? '通話中' : '通話していません');
   const getMicError = (connected: boolean): string =>
-    connected ? '' : 'マイクの使用を許可してください。';
+    connected ? '' : 'ボタンをクリックしてマイクの使用を許可してください。';
   const audioElement = useRef<HTMLMediaElement>(null);
 
   const playStream = useCallback(async () => {
@@ -50,6 +52,10 @@ const MyRoomUI = ({
     playStream();
   }, [remoteStream, audioElement]);
 
+  const handleCallButtonClick = useCallback(() => (calling ? onHangUp() : onCallClick()), [
+    calling,
+  ]);
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -65,23 +71,19 @@ const MyRoomUI = ({
         </p>
 
         <div className={styles.buttons}>
-          {calling ? (
-            <div data-testid="buttons">
-              <CallButton onClick={onHangUp} />
-              <MicMuteButton muted={muted} onClick={toggleLocalMic} />
-            </div>
-          ) : null}
+          <CallButton calling={calling} onClick={handleCallButtonClick} />
+          {calling ? <MicMuteButton muted={muted} onClick={toggleLocalMic} /> : null}
         </div>
       </div>
       {/*無音*/}
-      <audio autoPlay src="/silence.mp3" playsInline>
+      <audio src="/silence.mp3" autoPlay playsInline>
         <track kind="captions" src="seminar.ja.vtt" srcLang="ja" label="日本語" />
       </audio>
-      <audio autoPlay ref={audioElement} playsInline>
+      <audio ref={audioElement} autoPlay playsInline>
         <track kind="captions" src="seminar.ja.vtt" srcLang="ja" label="日本語" />
       </audio>
     </div>
   );
 };
 
-export default memo(MyRoomUI);
+export default memo(RoomUI);

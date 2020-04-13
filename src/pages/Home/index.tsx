@@ -8,6 +8,7 @@ import Hashids from 'hashids';
 import styles from './styles.module.css';
 import Loading from '../../components/Loading';
 import { User } from '../../models/user';
+import ErrorPage from '../Error';
 
 const HomeScreen = (): React.ReactElement => {
   const [updateError, setUpdateError] = useState<Error>();
@@ -68,7 +69,7 @@ const HomeScreen = (): React.ReactElement => {
   const tweetUrl = `https://twitter.com/intent/tweet?text=Tellableで通話しよう！ ${roomUrl}&hashtags=TellableOnline,テラブル`;
 
   if (fbAuthError || fbFirestoreDocError || updateError) {
-    return <h1>Error!</h1>;
+    return <ErrorPage message="予期しないエラーが発生しました。" />;
   }
 
   if (initialising || userLoading) {
