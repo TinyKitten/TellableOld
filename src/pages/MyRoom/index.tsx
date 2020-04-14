@@ -5,58 +5,52 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Helmet } from 'react-helmet';
 import { User } from '../../models/user';
 import ErrorPage from '../Error';
-import { ERR_COULD_NOT_GET_LOCAL_STREAM, ERR_USER_NOT_FOUND } from '../../constants/error';
+import { ERR_USER_NOT_FOUND } from '../../constants/error';
 import MyRoomUI from './ui';
 import Loading from '../../components/Loading';
 import { StoredSession } from '../../models/storedSession';
+import { stopLocalStream } from '../../utils/stopLocalStream';
+import { getLocalStream } from '../../utils/getLocalStream';
 
 const MyRoomPage = (): React.ReactElement => {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [error, setError] = useState<Error>();
   const [authUser, authUserLoading, authUserError] = useAuthState(firebase.auth());
-  const [peer, setPeer] = useState<Peer | null>(null);
   const [existingCall, setExistingCall] = useState<MediaConnection>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [remoteUser, setRemoteUser] = useState<User>();
   const [muted, setMuted] = useState(false);
-  const [user, setUser] = useState<User>();
+  const [uniqueId, setUniqueId] = useState<string>();
   const [storedSession, setStoredSession] = useState<StoredSession>();
 
-  const initializeLocalStream = useCallback(async () => {
-    if (navigator.mediaDevices) {
-      const localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      });
-      setLocalStream(localStream);
-      return Promise.resolve(localStream);
-    }
-    // MediaDevicesを取得できない
-    const err = new Error(ERR_COULD_NOT_GET_LOCAL_STREAM);
-    setError(err);
-    return Promise.reject(err);
-  }, []);
+  useEffect(() => {
+    return (): void => {
+      if (localStream) {
+        stopLocalStream(localStream);
+      }
+    };
+  });
 
-  const stopLocalStream = useCallback(() => {
-    if (localStream) {
-      const tracks = localStream.getTracks();
-      tracks.forEach((track) => {
-        track.stop();
-      });
+  const initializeLocalStream = useCallback(async () => {
+    try {
+      const ls = await getLocalStream();
+      setLocalStream(ls);
+    } catch (err) {
+      setError(err);
     }
-  }, [localStream]);
+  }, []);
 
   const updateStoredSession = useCallback(
     async (calling: boolean) => {
-      if (!user) {
+      if (!uniqueId) {
         return;
       }
-      const doc = firebase.firestore().collection('sessions').doc(user.uniqueId);
+      const doc = firebase.firestore().collection('sessions').doc(uniqueId);
       doc.set({
         calling,
       });
     },
-    [user],
+    [uniqueId],
   );
 
   const fetchRemoteUser = useCallback(async (uniqueId: string) => {
@@ -72,13 +66,12 @@ const MyRoomPage = (): React.ReactElement => {
   }, []);
 
   const initializePeer = useCallback(() => {
-    if (!user) {
+    if (!uniqueId) {
       return;
     }
-    const p = new Peer(user.uniqueId, {
+    const p = new Peer(uniqueId, {
       key: process.env.REACT_APP_SKWAY_API_KEY as string,
     });
-    setPeer(p);
 
     p.on('error', (err) => {
       // TODO: エラー処理
@@ -89,13 +82,12 @@ const MyRoomPage = (): React.ReactElement => {
         modalOpen: true,
       });
       */
-      stopLocalStream();
       setError(err);
     });
 
     p.on('call', async (call: MediaConnection) => {
       setExistingCall(call);
-      const ls = await initializeLocalStream();
+      const ls = await getLocalStream();
       call.answer(ls);
       fetchRemoteUser(call.remoteId);
       updateStoredSession(true);
@@ -104,7 +96,6 @@ const MyRoomPage = (): React.ReactElement => {
       });
       call.on('close', () => {
         setRemoteUser(undefined);
-        setRemoteStream(undefined);
         /*
         this.setState({
           modalTitle: 'お知らせ',
@@ -114,16 +105,16 @@ const MyRoomPage = (): React.ReactElement => {
         */
       });
     });
-  }, [user]);
+  }, [uniqueId, fetchRemoteUser, updateStoredSession]);
 
-  const handleHangUp = (): void => {
+  const handleHangUp = useCallback(() => {
     if (!existingCall) {
       return;
     }
     existingCall.close();
     setExistingCall(undefined);
     updateStoredSession(false);
-  };
+  }, [existingCall, setExistingCall, updateStoredSession]);
 
   const unmuteLocalMic = useCallback(() => {
     if (localStream) {
@@ -156,7 +147,7 @@ const MyRoomPage = (): React.ReactElement => {
     const userQuery = firebase.firestore().collection('users').doc(authUser?.uid);
     const userQuerySnapshot = await userQuery.get();
     const storedUser = userQuerySnapshot.data() as User;
-    setUser(storedUser);
+    setUniqueId(storedUser.uniqueId);
     firebase
       .firestore()
       .collection('sessions')
@@ -169,35 +160,13 @@ const MyRoomPage = (): React.ReactElement => {
         }
         setStoredSession(session);
       });
-  }, []);
-
-  const awaitInitialize = useCallback(async (): Promise<void> => {
-    await fetchLocalUser();
-    await initializeLocalStream();
-  }, []);
+  }, [authUser]);
 
   useEffect(() => {
-    awaitInitialize();
-
-    return (): void => {
-      updateStoredSession(false);
-    };
-  }, []);
-
-  const initialize = useCallback(async () => {
-    await Promise.all([initializeLocalStream(), initializePeer()]);
-  }, [initializeLocalStream, initializePeer]);
-
-  useEffect(() => {
-    initialize();
-
-    return (): void => {
-      stopLocalStream();
-      if (peer) {
-        peer.disconnect();
-      }
-    };
-  }, [user]);
+    fetchLocalUser();
+    initializeLocalStream();
+    initializePeer();
+  }, [fetchLocalUser, initializePeer, initializeLocalStream]);
 
   const handleError = useCallback((err: Error) => setError(err), []);
 
@@ -206,7 +175,7 @@ const MyRoomPage = (): React.ReactElement => {
     return <ErrorPage message="エラーが発生しました。" />;
   }
 
-  if (!user || !authUser || authUserLoading) {
+  if (!uniqueId || !authUser || authUserLoading) {
     return <Loading />;
   }
 

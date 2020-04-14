@@ -47,14 +47,16 @@ const RoomUI = ({
         onError(err);
       }
     }
-  }, [remoteStream, audioElement]);
+  }, [remoteStream, audioElement, onError]);
 
   useEffect(() => {
     playStream();
-  }, [remoteStream, audioElement]);
+  }, [remoteStream, audioElement, playStream]);
 
   const handleCallButtonClick = useCallback(() => (calling ? onHangUp() : onCallClick()), [
     calling,
+    onHangUp,
+    onCallClick,
   ]);
 
   return (

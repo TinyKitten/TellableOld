@@ -10,6 +10,22 @@ import Loading from '../../components/Loading';
 import { User } from '../../models/user';
 import ErrorPage from '../Error';
 
+const regenerateUniqueId = async (user: firebase.User): Promise<string> => {
+  const userQuery = firebase.firestore().collection('users').doc(user.uid);
+  const randomInt = (): number => Math.floor(Math.random() * Math.floor(9));
+  const h = new Hashids(user.uid);
+  const uniqueId = h.encode(randomInt(), randomInt(), randomInt());
+  try {
+    const newUser: User = {
+      uniqueId,
+    };
+    await userQuery.update(newUser);
+    return Promise.resolve(uniqueId);
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};
+
 const HomeScreen = (): React.ReactElement => {
   const [updateError, setUpdateError] = useState<Error>();
   const [copied, setCopied] = useState(false);
@@ -19,21 +35,6 @@ const HomeScreen = (): React.ReactElement => {
   const [firestoreUser, userLoading, fbFirestoreDocError] = useDocument(
     firebase.firestore().collection('users').doc(user?.uid),
   );
-
-  const handleRegenerate = useCallback(async () => {
-    const randomInt = (): number => Math.floor(Math.random() * Math.floor(9));
-    const h = new Hashids(user?.uid);
-    const uniqueId = h.encode(randomInt(), randomInt(), randomInt());
-    try {
-      const newUser: User = {
-        uniqueId,
-      };
-      await firestoreUser?.ref.update(newUser);
-      setUniqueId(uniqueId);
-    } catch (err) {
-      setUpdateError(err);
-    }
-  }, [firestoreUser, user]);
 
   const initializeUser = useCallback(async () => {
     const randomInt = (): number => Math.floor(Math.random() * Math.floor(9));
@@ -58,8 +59,25 @@ const HomeScreen = (): React.ReactElement => {
       initializeUser();
       return;
     }
-    setUniqueId(storedUniqueId);
   }, [firestoreUser, initializeUser]);
+
+  const awaitRegenerateUniqueId = useCallback(async () => {
+    if (user) {
+      const newUniqueId = await regenerateUniqueId(user);
+      setUniqueId(newUniqueId);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    awaitRegenerateUniqueId();
+  }, [user, awaitRegenerateUniqueId]);
+
+  const handleRegenerateClick = useCallback(async () => {
+    if (user) {
+      const newUniqueId = await regenerateUniqueId(user);
+      setUniqueId(newUniqueId);
+    }
+  }, [user]);
 
   const handleCopy = (): void => setCopied(true);
   const pushToMyRoom = (): void => history.push('/myroom');
@@ -95,6 +113,9 @@ const HomeScreen = (): React.ReactElement => {
             <span className={styles.helperText}>CLICK TO COPY</span>
           </div>
         </CopyToClipboard>
+        <small className={styles.regenerateNotice}>
+          リロードするとURLが変わります。ご注意ください。
+        </small>
         <p className={styles.disclaimer}>
           このURLをあなたの通話相手にお知らせください。
           <br />
@@ -115,7 +136,7 @@ const HomeScreen = (): React.ReactElement => {
         <button
           data-testid="regenerate-button"
           type="button"
-          onClick={handleRegenerate}
+          onClick={handleRegenerateClick}
           className={styles.btn}
         >
           URL再生成

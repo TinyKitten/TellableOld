@@ -33,6 +33,15 @@ b {
   color: #ccc;
   font-weight: bold;
 }
+.regenerateNotice {
+  text-align: center;
+  line-height: 1.5;
+  margin-top: 12px;
+  color: #ccc;
+  max-width: 90%;
+  font-size: 0.75rem;
+  font-weight: bold;;
+}
 .disclaimer {
   text-align: center;
   line-height: 1.5;
