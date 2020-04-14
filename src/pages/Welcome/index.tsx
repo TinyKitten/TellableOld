@@ -16,9 +16,6 @@ const WelcomeScreen = (): React.ReactElement => {
     if (user) {
       history.replace('/');
     }
-    return (): void => {
-      // nothing to do.
-    };
   }, [history, user]);
 
   const handleSignIn = (): void => {
