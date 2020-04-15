@@ -137,14 +137,6 @@ const RoomPage = (): React.ReactElement => {
   }, [id]);
 
   useEffect(() => {
-    return (): void => {
-      if (localStream) {
-        stopLocalStream(localStream);
-      }
-    };
-  });
-
-  useEffect(() => {
     awaitInitializeLocalUser();
     awaitInitializeRemoteUser();
     getLocalStream();
