@@ -19,7 +19,6 @@ const MyRoomPage = (): React.ReactElement => {
   const [existingCall, setExistingCall] = useState<MediaConnection>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [remoteUser, setRemoteUser] = useState<User>();
-  const [muted, setMuted] = useState(false);
   const [uniqueId, setUniqueId] = useState<string>();
   const [storedSession, setStoredSession] = useState<StoredSession>();
 
@@ -116,33 +115,6 @@ const MyRoomPage = (): React.ReactElement => {
     updateStoredSession(false);
   }, [existingCall, setExistingCall, updateStoredSession]);
 
-  const unmuteLocalMic = useCallback(() => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach((track: MediaStreamTrack) => {
-        track.enabled = true;
-        return track;
-      });
-      setMuted(false);
-    }
-  }, [localStream]);
-  const muteLocalMic = useCallback(() => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach((track: MediaStreamTrack) => {
-        track.enabled = false;
-        return track;
-      });
-      setMuted(true);
-    }
-  }, [localStream]);
-
-  const toggleLocalMic = useCallback(() => {
-    if (muted) {
-      unmuteLocalMic();
-    } else {
-      muteLocalMic();
-    }
-  }, [muted, unmuteLocalMic, muteLocalMic]);
-
   const fetchLocalUser = useCallback(async () => {
     const userQuery = firebase.firestore().collection('users').doc(authUser?.uid);
     const userQuerySnapshot = await userQuery.get();
@@ -171,7 +143,6 @@ const MyRoomPage = (): React.ReactElement => {
   const handleError = useCallback((err: Error) => setError(err), []);
 
   if (error || authUserError) {
-    console.error(error);
     return <ErrorPage message="エラーが発生しました。" />;
   }
 
@@ -199,8 +170,6 @@ const MyRoomPage = (): React.ReactElement => {
         calling={storedSession?.calling || false}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
-        muted={muted}
-        toggleLocalMic={toggleLocalMic}
         onError={handleError}
       />
     </div>
