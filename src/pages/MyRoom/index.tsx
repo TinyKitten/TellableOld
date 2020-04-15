@@ -9,7 +9,7 @@ import { ERR_USER_NOT_FOUND } from '../../constants/error';
 import MyRoomUI from './ui';
 import Loading from '../../components/Loading';
 import { StoredSession } from '../../models/storedSession';
-import { stopLocalStream } from '../../utils/stopLocalStream';
+// import { stopLocalStream } from '../../utils/stopLocalStream';
 import { getLocalStream } from '../../utils/getLocalStream';
 
 const MyRoomPage = (): React.ReactElement => {
@@ -21,14 +21,6 @@ const MyRoomPage = (): React.ReactElement => {
   const [remoteUser, setRemoteUser] = useState<User>();
   const [uniqueId, setUniqueId] = useState<string>();
   const [storedSession, setStoredSession] = useState<StoredSession>();
-
-  useEffect(() => {
-    return (): void => {
-      if (localStream) {
-        stopLocalStream(localStream);
-      }
-    };
-  });
 
   const initializeLocalStream = useCallback(async () => {
     try {
