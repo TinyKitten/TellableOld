@@ -21,7 +21,6 @@ const RoomPage = (): React.ReactElement => {
   const [existingCall, setExistingCall] = useState<MediaConnection>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [remoteUser, setRemoteUser] = useState<User>();
-  const [muted, setMuted] = useState(false);
   const [localUser, setLocalUser] = useState<User>();
   const { id } = useParams();
   const [storedSession, setStoredSession] = useState<StoredSession>();
@@ -93,7 +92,7 @@ const RoomPage = (): React.ReactElement => {
         return;
       }
       call.on('error', (err) => {
-        console.error(err);
+        setError(err);
       });
       call.on('stream', (stream: MediaStream) => {
         setRemoteStream(stream);
@@ -118,33 +117,6 @@ const RoomPage = (): React.ReactElement => {
     setExistingCall(undefined);
     updateStoredSession(false);
   }, [existingCall, setExistingCall, updateStoredSession]);
-
-  const unmuteLocalMic = useCallback(() => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach((track: MediaStreamTrack) => {
-        track.enabled = true;
-        return track;
-      });
-      setMuted(false);
-    }
-  }, [localStream]);
-  const muteLocalMic = useCallback(() => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach((track: MediaStreamTrack) => {
-        track.enabled = false;
-        return track;
-      });
-      setMuted(true);
-    }
-  }, [localStream]);
-
-  const toggleLocalMic = useCallback(() => {
-    if (muted) {
-      unmuteLocalMic();
-    } else {
-      muteLocalMic();
-    }
-  }, [muted, unmuteLocalMic, muteLocalMic]);
 
   const awaitInitializeRemoteUser = useCallback(async (): Promise<void> => {
     await initializeRemoteUser();
@@ -201,7 +173,6 @@ const RoomPage = (): React.ReactElement => {
   }
 
   if (error || authUserError) {
-    console.error(error);
     return <ErrorPage message="エラーが発生しました。" />;
   }
 
@@ -225,8 +196,6 @@ const RoomPage = (): React.ReactElement => {
         calling={storedSession?.calling || false}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
-        muted={muted}
-        toggleLocalMic={toggleLocalMic}
         onCallClick={handleCallClick}
         onError={handleError}
       />
