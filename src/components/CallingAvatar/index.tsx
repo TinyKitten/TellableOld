@@ -11,7 +11,7 @@ type Props = {
 const getAvatarWrapperStyle = (calling: boolean): { boxShadow: string } =>
   calling ? { boxShadow: '0 0 24px #008ffe' } : { boxShadow: '0 0 24px #ff5252' };
 
-const CallingAvatar = ({ calling, user }: Props): React.ReactElement => {
+const CallingAvatar: React.FC<Props> = ({ calling, user }) => {
   const wrapperStyle = getAvatarWrapperStyle(calling);
   return (
     <div style={wrapperStyle} className={styles.avatarWrapper}>

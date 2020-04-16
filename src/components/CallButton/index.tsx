@@ -9,20 +9,14 @@ type Props = {
   calling?: boolean;
 };
 
-const CallButton = ({ onClick, calling }: Props): React.ReactElement => {
-  return (
-    <button type="button" className={calling ? styles.hangUpBtn : styles.callBtn} onClick={onClick}>
-      {calling ? (
-        <img className={styles.buttonIcon} src={HangUpIcon} alt="通話切断" />
-      ) : (
-        <img className={styles.buttonIcon} src={CallIcon} alt="通話開始" />
-      )}
-    </button>
-  );
-};
-
-CallButton.defaultProps = {
-  calling: true,
-};
+const CallButton: React.FC<Props> = ({ onClick, calling = true }) => (
+  <button type="button" className={calling ? styles.hangUpBtn : styles.callBtn} onClick={onClick}>
+    {calling ? (
+      <img className={styles.buttonIcon} src={HangUpIcon} alt="通話切断" />
+    ) : (
+      <img className={styles.buttonIcon} src={CallIcon} alt="通話開始" />
+    )}
+  </button>
+);
 
 export default memo(CallButton);

@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import Loading from '../../components/Loading';
 import ErrorPage from '../Error';
 
-const WelcomeScreen = (): React.ReactElement => {
+const WelcomeScreen: React.FC = () => {
   const [error, setError] = useState<Error | firebase.auth.Error>();
   const history = useHistory();
   const [user, initialising, authStateError] = useAuthState(firebase.auth());

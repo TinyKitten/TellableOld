@@ -13,14 +13,14 @@ type Props = {
   onError: (err: Error) => void;
 };
 
-const MyRoomUI = ({
+const MyRoomUI: React.FC<Props> = ({
   micConnected,
   remoteStream,
   remoteUser,
   calling,
   onHangUp,
   onError,
-}: Props): React.ReactElement => {
+}) => {
   const getRemoteUserName = (): string =>
     calling ? (remoteUser?.displayName ? remoteUser.displayName : '不明') : '通話相手なし';
   const getCallState = (): string => (calling ? '通話中' : '通話していません');

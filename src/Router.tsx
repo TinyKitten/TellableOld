@@ -10,7 +10,7 @@ import Loading from './components/Loading';
 import MyRoom from './pages/MyRoom';
 import Room from './pages/Room';
 
-export const AppRouter = (): React.ReactElement => {
+export const AppRouter: React.FC = () => {
   const [user, initialising, error] = useAuthState(firebase.auth());
 
   if (error) {

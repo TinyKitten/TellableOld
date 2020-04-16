@@ -14,7 +14,7 @@ type Props = {
   onError: (err: Error) => void;
 };
 
-const RoomUI = ({
+const RoomUI: React.FC<Props> = ({
   micConnected,
   remoteStream,
   calling,
@@ -22,7 +22,7 @@ const RoomUI = ({
   onHangUp,
   onCallClick,
   onError,
-}: Props): React.ReactElement => {
+}) => {
   const getRemoteUserName = (): string => remoteUser?.displayName || '通話相手なし';
   const getCallState = (): string => (calling ? '通話中' : '通話していません');
   const getMicError = (): string => (micConnected ? '' : 'マイクの使用を許可してください。');
