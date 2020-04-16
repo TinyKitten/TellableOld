@@ -9,12 +9,13 @@ import Header from './components/Header';
 import Loading from './components/Loading';
 import MyRoom from './pages/MyRoom';
 import Room from './pages/Room';
+import ErrorPage from './pages/Error';
 
 export const AppRouter: React.FC = () => {
   const [user, initialising, error] = useAuthState(firebase.auth());
 
   if (error) {
-    return <h1>An error occurred.</h1>;
+    return <ErrorPage message="初期化エラーが発生しました。" />;
   }
 
   if (initialising) {
@@ -49,6 +50,8 @@ export const AppRouter: React.FC = () => {
             </Route>
           </AuthContainer>
         </Switch>
+
+        <div className="sw-update-dialog" />
       </>
     </Router>
   );

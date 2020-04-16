@@ -6,6 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import SWUpdateDialog from './components/SWUpdateDialog';
 
 require('dotenv').config();
 
@@ -31,4 +32,13 @@ ReactDOM.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.register();
+serviceWorker.register({
+  onUpdate: (registration) => {
+    if (registration.waiting) {
+      ReactDOM.render(
+        <SWUpdateDialog registration={registration} />,
+        document.querySelector('.sw-update-dialog'),
+      );
+    }
+  },
+});
