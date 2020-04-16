@@ -27,6 +27,9 @@ function registerValidSW(swUrl: string, config?: Config): void {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
+      if (registration.waiting && config && config.onUpdate) {
+        config.onUpdate(registration);
+      }
       registration.onupdatefound = (): void => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {

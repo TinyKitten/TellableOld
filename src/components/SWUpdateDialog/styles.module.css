@@ -1,0 +1,33 @@
+.root {
+  width: 100%;
+  background-color: #555;
+  color: #fff;
+  z-index: 9999;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 8px;
+  font-size: 0.9rem;
+}
+
+.button {
+  appearance: none;
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  background-color: #212121;
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-left: 12px;
+  font-weight: bold;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.16);
+  border-radius: 2px;
+}
