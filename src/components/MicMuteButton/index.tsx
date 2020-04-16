@@ -9,7 +9,7 @@ type Props = {
   muted: boolean;
 };
 
-const MicMuteButton = ({ onClick, muted }: Props): React.ReactElement => {
+const MicMuteButton: React.FC<Props> = ({ onClick, muted }) => {
   return (
     <button
       type="button"

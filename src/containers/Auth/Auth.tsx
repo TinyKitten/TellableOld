@@ -7,7 +7,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-const AuthContainer = ({ children, user }: Props): React.ReactElement => {
+const AuthContainer: React.FC<Props> = ({ children, user }) => {
   if (!user) {
     return <Redirect to="/welcome" />;
   }

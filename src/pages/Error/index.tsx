@@ -6,7 +6,7 @@ type Props = {
   message: string;
 };
 
-const ErrorPage = ({ message }: Props): React.ReactElement => {
+const ErrorPage: React.FC<Props> = ({ message }) => {
   return (
     <div>
       <div className={styles.container}>

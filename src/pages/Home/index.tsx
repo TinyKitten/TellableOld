@@ -26,7 +26,7 @@ const regenerateUniqueId = async (user: firebase.User): Promise<string> => {
   }
 };
 
-const HomeScreen = (): React.ReactElement => {
+const HomeScreen: React.FC = () => {
   const [updateError, setUpdateError] = useState<Error>();
   const [copied, setCopied] = useState(false);
   const [uniqueId, setUniqueId] = useState('');

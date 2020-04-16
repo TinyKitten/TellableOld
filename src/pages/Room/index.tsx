@@ -13,7 +13,7 @@ import { StoredSession } from '../../models/storedSession';
 import { stopLocalStream } from '../../utils/stopLocalStream';
 import { getLocalStream } from '../../utils/getLocalStream';
 
-const RoomPage = (): React.ReactElement => {
+const RoomPage: React.FC = () => {
   const [authUser, authUserLoading, authUserError] = useAuthState(firebase.auth());
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [error, setError] = useState<Error>();

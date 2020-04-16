@@ -7,7 +7,7 @@ type Props = {
   onLogoutClick?: () => void;
 };
 
-const Header = ({ isLoggedIn, onLogoutClick }: Props): React.ReactElement => (
+const Header: React.FC<Props> = ({ isLoggedIn, onLogoutClick }) => (
   <header className={styles.appHeader}>
     <Link className={styles.link} to="/">
       <h1 className={styles.appTitle} data-testid="title">
