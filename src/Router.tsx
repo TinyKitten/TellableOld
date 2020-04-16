@@ -11,6 +11,12 @@ import MyRoom from './pages/MyRoom';
 import Room from './pages/Room';
 import ErrorPage from './pages/Error';
 
+const footerStyle: React.CSSProperties = {
+  width: '100%',
+  textAlign: 'center',
+  color: '#555',
+};
+
 export const AppRouter: React.FC = () => {
   const [user, initialising, error] = useAuthState(firebase.auth());
 
@@ -50,6 +56,10 @@ export const AppRouter: React.FC = () => {
             </Route>
           </AuthContainer>
         </Switch>
+
+        <footer style={footerStyle}>
+          <span> &copy; 2020 TinyKitten</span>
+        </footer>
 
         <div className="sw-update-dialog" />
       </>

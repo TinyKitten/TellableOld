@@ -1,13 +1,10 @@
-.appHeader {
+.header {
   width: 100%;
   padding: 12px 24px;
   color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: absolute;
-  left: 0;
-  top: 0;
 }
 .link {
   color: #fff;
@@ -15,7 +12,7 @@
   display: flex;
   align-items: center;
 }
-.appTitle {
+.title {
   font-weight: bold;
 }
 .devState {

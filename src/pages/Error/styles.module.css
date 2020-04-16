@@ -1,6 +1,4 @@
 .container {
-  min-height: 100vh;
-  background: #212121;
   color: #fff;
   display: flex;
   justify-content: center;
@@ -9,4 +7,5 @@
   font-weight: bold;
   flex-direction: column;
   text-align: center;
+  height: 100%;
 }
