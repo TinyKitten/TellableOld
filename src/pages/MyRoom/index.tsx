@@ -9,7 +9,6 @@ import { ERR_USER_NOT_FOUND } from '../../constants/error';
 import MyRoomUI from './ui';
 import Loading from '../../components/Loading';
 import { StoredSession } from '../../models/storedSession';
-// import { stopLocalStream } from '../../utils/stopLocalStream';
 import { getLocalStream } from '../../utils/getLocalStream';
 
 const MyRoomPage: React.FC = () => {
@@ -147,7 +146,7 @@ const MyRoomPage: React.FC = () => {
       {storedSession?.calling && remoteUser ? (
         <Helmet>
           <title>
-            {remoteUser.displayName}
+            {remoteUser?.displayName}
             さんと通話中 - Tellable
           </title>
         </Helmet>

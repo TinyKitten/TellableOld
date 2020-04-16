@@ -8,10 +8,8 @@ type Props = {
 
 const ErrorPage: React.FC<Props> = ({ message }) => {
   return (
-    <div>
-      <div className={styles.container}>
-        <h1>{message}</h1>
-      </div>
+    <div className={styles.container}>
+      <h1>{message}</h1>
     </div>
   );
 };

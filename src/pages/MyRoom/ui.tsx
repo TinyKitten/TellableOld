@@ -46,26 +46,24 @@ const MyRoomUI: React.FC<Props> = ({
   }, [remoteStream, audioElement, playStream]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <CallingAvatar calling={calling} user={remoteUser} />
-        <p data-testid="remote-user-name" className={styles.remoteScreenName}>
-          {getRemoteUserName()}
-        </p>
-        <p data-testid="call-state" className={styles.callState}>
-          {getCallState()}
-        </p>
-        <p data-testid="mic-connection-error" className={styles.error}>
-          {getMicError()}
-        </p>
+    <div className={styles.content}>
+      <CallingAvatar calling={calling} user={remoteUser} />
+      <p data-testid="remote-user-name" className={styles.remoteScreenName}>
+        {getRemoteUserName()}
+      </p>
+      <p data-testid="call-state" className={styles.callState}>
+        {getCallState()}
+      </p>
+      <p data-testid="mic-connection-error" className={styles.error}>
+        {getMicError()}
+      </p>
 
-        <div className={styles.buttons}>
-          {calling ? (
-            <div data-testid="buttons">
-              <CallButton onClick={onHangUp} />
-            </div>
-          ) : null}
-        </div>
+      <div className={styles.buttons}>
+        {calling ? (
+          <div data-testid="buttons">
+            <CallButton onClick={onHangUp} />
+          </div>
+        ) : null}
       </div>
       <audio ref={audioElement} playsInline />
     </div>

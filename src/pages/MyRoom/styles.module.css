@@ -1,9 +1,5 @@
-.container {
-  background: #212121;
-  min-height: 100vh;
-  color: #fff;
-}
 .content {
+  color: #fff;
   height: calc(100vh - 46px);
   display: flex;
   justify-content: center;

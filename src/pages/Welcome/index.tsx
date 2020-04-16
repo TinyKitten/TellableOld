@@ -48,9 +48,6 @@ const WelcomeScreen: React.FC = () => {
           </button>
         </div>
       </div>
-      <footer className={styles.appFooter}>
-        <span> &copy; 2020 TinyKitten</span>
-      </footer>
     </section>
   );
 };

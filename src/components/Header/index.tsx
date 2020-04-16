@@ -8,9 +8,9 @@ type Props = {
 };
 
 const Header: React.FC<Props> = ({ isLoggedIn, onLogoutClick }) => (
-  <header className={styles.appHeader}>
+  <header className={styles.header}>
     <Link className={styles.link} to="/">
-      <h1 className={styles.appTitle} data-testid="title">
+      <h1 className={styles.title} data-testid="title">
         Tellable
       </h1>
       <span className={styles.devState} data-testid="dev-state">

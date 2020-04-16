@@ -53,22 +53,20 @@ const RoomUI: React.FC<Props> = ({
   ]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <CallingAvatar calling={calling} user={remoteUser} />
-        <p data-testid="remote-user-name" className={styles.remoteScreenName}>
-          {getRemoteUserName()}
-        </p>
-        <p data-testid="call-state" className={styles.callState}>
-          {getCallState()}
-        </p>
-        <p data-testid="mic-connection-error" className={styles.error}>
-          {getMicError()}
-        </p>
+    <div className={styles.content}>
+      <CallingAvatar calling={calling} user={remoteUser} />
+      <p data-testid="remote-user-name" className={styles.remoteScreenName}>
+        {getRemoteUserName()}
+      </p>
+      <p data-testid="call-state" className={styles.callState}>
+        {getCallState()}
+      </p>
+      <p data-testid="mic-connection-error" className={styles.error}>
+        {getMicError()}
+      </p>
 
-        <div className={styles.buttons}>
-          <CallButton calling={calling} onClick={handleCallButtonClick} />
-        </div>
+      <div className={styles.buttons}>
+        <CallButton calling={calling} onClick={handleCallButtonClick} />
       </div>
       <audio ref={audioElement} playsInline />
     </div>

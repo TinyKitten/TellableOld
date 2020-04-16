@@ -95,56 +95,54 @@ const HomeScreen: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <h1 className={styles.title}>お友達を通話に招待しよう</h1>
-        {copied ? (
-          <p className={styles.notice}>コピーしました。</p>
-        ) : (
-          <p className={styles.notice}>&nbsp;</p>
-        )}
-        <CopyToClipboard text={roomUrl} onCopy={handleCopy}>
-          <div className={styles.address} data-testid="url-container">
-            {uniqueId ? (
-              <span data-testid="url">{roomUrl}</span>
-            ) : (
-              <span data-testid="loading">LOADING...</span>
-            )}
-            <span className={styles.helperText}>CLICK TO COPY</span>
-          </div>
-        </CopyToClipboard>
-        <small className={styles.regenerateNotice}>
-          リロードするとURLが変わります。ご注意ください。
-        </small>
-        <p className={styles.disclaimer}>
-          このURLをあなたの通話相手にお知らせください。
-          <br />
-          <b>通話相手と関係ない相手には伝えないでください。</b>
-          <br />
-          知らない相手と通話することになります。
-        </p>
-        <a
-          href={tweetUrl}
-          role="button"
-          className={styles.shareLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-testid="twitter"
-        >
-          Twitterでシェア
-        </a>
-        <button
-          data-testid="regenerate-button"
-          type="button"
-          onClick={handleRegenerateClick}
-          className={styles.btn}
-        >
-          URL再生成
-        </button>
-        <button type="button" onClick={pushToMyRoom} className={styles.btn}>
-          自分の部屋に行く
-        </button>
-      </div>
+    <div className={styles.content}>
+      <h1 className={styles.title}>お友達を通話に招待しよう</h1>
+      {copied ? (
+        <p className={styles.notice}>コピーしました。</p>
+      ) : (
+        <p className={styles.notice}>&nbsp;</p>
+      )}
+      <CopyToClipboard text={roomUrl} onCopy={handleCopy}>
+        <div className={styles.address} data-testid="url-container">
+          {uniqueId ? (
+            <span data-testid="url">{roomUrl}</span>
+          ) : (
+            <span data-testid="loading">LOADING...</span>
+          )}
+          <span className={styles.helperText}>CLICK TO COPY</span>
+        </div>
+      </CopyToClipboard>
+      <small className={styles.regenerateNotice}>
+        リロードするとURLが変わります。ご注意ください。
+      </small>
+      <p className={styles.disclaimer}>
+        このURLをあなたの通話相手にお知らせください。
+        <br />
+        <b>通話相手と関係ない相手には伝えないでください。</b>
+        <br />
+        知らない相手と通話することになります。
+      </p>
+      <a
+        href={tweetUrl}
+        role="button"
+        className={styles.shareLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid="twitter"
+      >
+        Twitterでシェア
+      </a>
+      <button
+        data-testid="regenerate-button"
+        type="button"
+        onClick={handleRegenerateClick}
+        className={styles.btn}
+      >
+        URL再生成
+      </button>
+      <button type="button" onClick={pushToMyRoom} className={styles.btn}>
+        自分の部屋に行く
+      </button>
     </div>
   );
 };

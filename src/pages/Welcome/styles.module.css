@@ -1,14 +1,10 @@
-.container {
-  min-height: 100vh;
-  background: #212121;
-  color: #fff;
-}
 .content {
   min-height: calc(100vh - 46px - 48px);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  color: #fff;
 }
 .mock {
   width: auto;
@@ -38,12 +34,6 @@
   font-weight: bold;
   color: #fff;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
-}
-.appFooter {
-  width: 100%;
-  text-align: center;
-  color: #555;
-  padding-bottom: 32px;
 }
 
 /* Oppa PC Style */
