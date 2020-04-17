@@ -47,10 +47,6 @@ const RoomPage: React.FC = () => {
     setLocalUser(storedUser);
   }, [authUser]);
 
-  const awaitInitializeLocalUser = useCallback(async (): Promise<void> => {
-    await fetchLocalUser();
-  }, [fetchLocalUser]);
-
   const initializePeer = useCallback(() => {
     if (!localUser || peer) {
       return;
@@ -70,10 +66,10 @@ const RoomPage: React.FC = () => {
   }, [localUser, peer, localStream]);
 
   const updateStoredSession = useCallback(
-    async (calling: boolean) => {
+    (remoteId?: string) => {
       const doc = firebase.firestore().collection('sessions').doc(id);
-      doc.set({
-        calling,
+      doc.update({
+        caller: remoteId,
       });
     },
     [id],
@@ -115,12 +111,8 @@ const RoomPage: React.FC = () => {
   const handleHangUp = useCallback(() => {
     existingCall?.close();
     setExistingCall(undefined);
-    updateStoredSession(false);
+    updateStoredSession();
   }, [existingCall, setExistingCall, updateStoredSession]);
-
-  const awaitInitializeRemoteUser = useCallback(async (): Promise<void> => {
-    await initializeRemoteUser();
-  }, [initializeRemoteUser]);
 
   const fetchCalling = useCallback(() => {
     firebase
@@ -129,7 +121,7 @@ const RoomPage: React.FC = () => {
       .doc(id)
       .onSnapshot((doc) => {
         const session = doc.data() as StoredSession;
-        if (!session?.calling) {
+        if (!session?.caller) {
           setRemoteStream(undefined);
         }
         setStoredSession(session);
@@ -137,10 +129,10 @@ const RoomPage: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    awaitInitializeLocalUser();
-    awaitInitializeRemoteUser();
+    fetchLocalUser();
+    initializeRemoteUser();
     getLocalStream();
-  }, [awaitInitializeLocalUser, awaitInitializeRemoteUser]);
+  }, [fetchLocalUser, initializeRemoteUser]);
 
   useEffect(() => {
     fetchCalling();
@@ -170,7 +162,7 @@ const RoomPage: React.FC = () => {
 
   return (
     <div>
-      {storedSession?.calling && remoteUser ? (
+      {storedSession?.caller && remoteUser ? (
         <Helmet>
           <title>
             {remoteUser.displayName}
@@ -185,7 +177,7 @@ const RoomPage: React.FC = () => {
       <RoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
-        calling={storedSession?.calling || false}
+        remoteId={storedSession?.caller}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
         onCallClick={handleCallClick}

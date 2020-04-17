@@ -31,13 +31,13 @@ const MyRoomPage: React.FC = () => {
   }, []);
 
   const updateStoredSession = useCallback(
-    async (calling: boolean) => {
+    (remoteId?: string) => {
       if (!uniqueId) {
         return;
       }
       const doc = firebase.firestore().collection('sessions').doc(uniqueId);
       doc.set({
-        calling,
+        caller: remoteId,
       });
     },
     [uniqueId],
@@ -80,7 +80,7 @@ const MyRoomPage: React.FC = () => {
       const ls = await getLocalStream();
       call.answer(ls);
       fetchRemoteUser(call.remoteId);
-      updateStoredSession(true);
+      updateStoredSession(call.remoteId);
       call.on('stream', (stream) => {
         setRemoteStream(stream);
       });
@@ -103,7 +103,7 @@ const MyRoomPage: React.FC = () => {
     }
     existingCall.close();
     setExistingCall(undefined);
-    updateStoredSession(false);
+    updateStoredSession();
   }, [existingCall, setExistingCall, updateStoredSession]);
 
   const fetchLocalUser = useCallback(async () => {
@@ -117,7 +117,7 @@ const MyRoomPage: React.FC = () => {
       .doc(storedUser.uniqueId)
       .onSnapshot((doc) => {
         const session = doc.data() as StoredSession;
-        if (!session?.calling) {
+        if (!session?.caller) {
           setRemoteUser(undefined);
           setRemoteStream(undefined);
         }
@@ -143,7 +143,7 @@ const MyRoomPage: React.FC = () => {
 
   return (
     <div>
-      {storedSession?.calling && remoteUser ? (
+      {storedSession?.caller && remoteUser ? (
         <Helmet>
           <title>
             {remoteUser?.displayName}
@@ -158,7 +158,7 @@ const MyRoomPage: React.FC = () => {
       <MyRoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
-        calling={storedSession?.calling || false}
+        remoteId={storedSession?.caller}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
         onError={handleError}
