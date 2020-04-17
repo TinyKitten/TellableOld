@@ -15,7 +15,7 @@ describe('<MyRoomUI />', () => {
         onHangUp={jest.fn()}
         remoteUser={mockRemoteUser}
         onError={onError}
-        remoteId={mockRemoteUser.uniqueId}
+        calling
         micConnected
       />,
     );
