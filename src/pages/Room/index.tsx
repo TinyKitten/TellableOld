@@ -69,7 +69,7 @@ const RoomPage: React.FC = () => {
     (remoteId?: string) => {
       const doc = firebase.firestore().collection('sessions').doc(id);
       doc.update({
-        caller: remoteId,
+        caller: remoteId || null,
       });
     },
     [id],

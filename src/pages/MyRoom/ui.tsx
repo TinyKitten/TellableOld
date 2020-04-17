@@ -61,7 +61,7 @@ const MyRoomUI: React.FC<Props> = ({
       <div className={styles.buttons}>
         {remoteId ? (
           <div data-testid="buttons">
-            <CallButton onClick={onHangUp} />
+            <CallButton calling onClick={onHangUp} />
           </div>
         ) : null}
       </div>
