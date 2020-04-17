@@ -37,7 +37,7 @@ const MyRoomPage: React.FC = () => {
       }
       const doc = firebase.firestore().collection('sessions').doc(uniqueId);
       doc.set({
-        caller: remoteId,
+        caller: remoteId || null,
       });
     },
     [uniqueId],
