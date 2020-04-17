@@ -120,6 +120,8 @@ const MyRoomPage: React.FC = () => {
         if (!session?.caller) {
           setRemoteUser(undefined);
           setRemoteStream(undefined);
+        } else {
+          fetchRemoteUser(session.caller);
         }
         setStoredSession(session);
       });
@@ -132,6 +134,7 @@ const MyRoomPage: React.FC = () => {
   }, [fetchLocalUser, initializePeer, initializeLocalStream]);
 
   const handleError = useCallback((err: Error) => setError(err), []);
+  const calling = !!storedSession?.caller && !!existingCall?.remoteId;
 
   if (error || authUserError) {
     return <ErrorPage message="エラーが発生しました。" />;
@@ -158,7 +161,7 @@ const MyRoomPage: React.FC = () => {
       <MyRoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
-        remoteId={storedSession?.caller}
+        calling={calling}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
         onError={handleError}
