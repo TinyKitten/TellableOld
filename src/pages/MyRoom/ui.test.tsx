@@ -15,7 +15,7 @@ describe('<MyRoomUI />', () => {
         onHangUp={jest.fn()}
         remoteUser={mockRemoteUser}
         onError={onError}
-        calling
+        remoteId={mockRemoteUser.uniqueId}
         micConnected
       />,
     );
@@ -30,7 +30,7 @@ describe('<MyRoomUI />', () => {
   it('should rendered correctly with not calling state', () => {
     const onError = jest.fn();
     const wrapper = shallow(
-      <MyRoomUI onHangUp={jest.fn()} calling={false} micConnected={false} onError={onError} />,
+      <MyRoomUI onHangUp={jest.fn()} micConnected={false} onError={onError} />,
     );
     const callState = wrapper.find(testIdSelector('call-state'));
     const micConnectionError = wrapper.find(testIdSelector('mic-connection-error'));

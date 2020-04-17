@@ -9,7 +9,7 @@ type Props = {
   calling?: boolean;
 };
 
-const CallButton: React.FC<Props> = ({ onClick, calling = true }) => (
+const CallButton: React.FC<Props> = ({ onClick, calling }) => (
   <button type="button" className={calling ? styles.hangUpBtn : styles.callBtn} onClick={onClick}>
     {calling ? (
       <img className={styles.buttonIcon} src={HangUpIcon} alt="通話切断" />

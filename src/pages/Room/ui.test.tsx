@@ -15,7 +15,7 @@ describe('<RoomUI />', () => {
       <RoomUI
         onHangUp={jest.fn()}
         remoteUser={mockRemoteUser}
-        calling
+        remoteId={mockRemoteUser.uniqueId}
         micConnected
         onCallClick={onCallClick}
         onError={onError}
@@ -34,7 +34,6 @@ describe('<RoomUI />', () => {
     const wrapper = shallow(
       <RoomUI
         onHangUp={jest.fn()}
-        calling={false}
         micConnected={false}
         onCallClick={onCallClick}
         onError={onError}
