@@ -143,6 +143,7 @@ const RoomPage: React.FC = () => {
   }, [localUser, initializePeer]);
 
   const handleError = useCallback((err: Error) => setError(err), []);
+  const calling = !!storedSession?.caller && !!existingCall?.remoteId;
 
   if (!id) {
     return <ErrorPage message="部屋IDを指定してください。" />;
@@ -177,7 +178,7 @@ const RoomPage: React.FC = () => {
       <RoomUI
         remoteStream={remoteStream}
         remoteUser={remoteUser}
-        remoteId={storedSession?.caller}
+        calling={calling}
         micConnected={!!localStream}
         onHangUp={handleHangUp}
         onCallClick={handleCallClick}

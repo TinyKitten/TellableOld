@@ -8,7 +8,7 @@ type Props = {
   micConnected: boolean;
   remoteStream?: MediaStream;
   remoteUser?: User;
-  remoteId?: string;
+  calling?: boolean;
   onHangUp: () => void;
   onCallClick: () => void;
   onError: (err: Error) => void;
@@ -17,14 +17,14 @@ type Props = {
 const RoomUI: React.FC<Props> = ({
   micConnected,
   remoteStream,
-  remoteId,
+  calling,
   remoteUser,
   onHangUp,
   onCallClick,
   onError,
 }) => {
   const getRemoteUserName = (): string => remoteUser?.displayName || '通話相手なし';
-  const getCallState = (): string => (remoteId ? '通話中' : '通話していません');
+  const getCallState = (): string => (calling ? '通話中' : '通話していません');
   const getMicError = (): string => (micConnected ? '' : 'マイクの使用を許可してください。');
   const audioElement = useRef<HTMLMediaElement>(null);
 
@@ -46,15 +46,15 @@ const RoomUI: React.FC<Props> = ({
     playStream();
   }, [remoteStream, audioElement, playStream]);
 
-  const handleCallButtonClick = useCallback(() => (remoteId ? onHangUp() : onCallClick()), [
-    remoteId,
+  const handleCallButtonClick = useCallback(() => (calling ? onHangUp() : onCallClick()), [
+    calling,
     onHangUp,
     onCallClick,
   ]);
 
   return (
     <div className={styles.content}>
-      <CallingAvatar calling={!!remoteId} user={remoteUser} />
+      <CallingAvatar calling={!!calling} user={remoteUser} />
       <p data-testid="remote-user-name" className={styles.remoteScreenName}>
         {getRemoteUserName()}
       </p>
@@ -66,7 +66,7 @@ const RoomUI: React.FC<Props> = ({
       </p>
 
       <div className={styles.buttons}>
-        <CallButton calling={!!remoteId} onClick={handleCallButtonClick} />
+        <CallButton calling={!!calling} onClick={handleCallButtonClick} />
       </div>
       <audio ref={audioElement} playsInline />
     </div>
